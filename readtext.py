@@ -3,10 +3,12 @@ import cv2
 import pytesseract
 
 # Mention the installed location of Tesseract-OCR in your system
-pytesseract.pytesseract.tesseract_cmd = r'/Users/SDuff/AppData/Roaming/Python/Python310/site-packages/pytesseract/pytesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'/Program Files/Tesseract-OCR/tesseract.exe'
 
 # Read image from which text needs to be extracted
 img = cv2.imread("resources/Subtitles.png")
+cv2.imshow("pre", img)
+cv2.waitKey()
 
 # Preprocessing the image starts
 
