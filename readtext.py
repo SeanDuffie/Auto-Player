@@ -36,7 +36,7 @@ contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL,
 im2 = img.copy()
 
 # A text file is created and flushed
-file = open("recognized.txt", "w+")
+file = open("output/recognized.txt", "w+")
 file.write("")
 file.close()
 

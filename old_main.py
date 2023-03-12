@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
 from mss import mss
-from PIL import Image
 
 from screeninfo import get_monitors
 for m in get_monitors():
