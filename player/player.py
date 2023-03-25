@@ -1,6 +1,11 @@
-import keyboard
-import pyautogui as pg
+""" player.py
+
+    This file handles any interactions that simulate the player.
+    Right now it only deals with fishing, however more abilities
+    could be added in the future.
+"""
 import time
+import pyautogui as pg
 
 def basic_fisher():
     """ Simple iteration of the auto fisher
@@ -21,13 +26,3 @@ def recast_fisher():
     pg.rightClick()
     time.sleep(.1)
     pg.rightClick()
-
-if __name__ == "__main__":
-    print("3")
-    time.sleep(1)
-    print("2")
-    time.sleep(1)
-    print("1")
-    time.sleep(1)
-
-    basic_fisher()
