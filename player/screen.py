@@ -10,8 +10,8 @@ class Screen:
     """ Provides the ability to capture frames from the screen """
     def __init__(self, mon=0):
         self.p_mon = get_monitors()[mon]
-        self.width = 400
-        self.height = 600
+        self.width = int(self.p_mon.width/8)
+        self.height = int(self.p_mon.height/4)
         self.box_top = self.p_mon.height - self.height - 100
         self.box_left = self.p_mon.width - self.width
         self.sct = mss()
@@ -28,6 +28,10 @@ class Screen:
     def change_monitor(self, mon):
         """ Select the monitor to grab images from """
         self.p_mon = get_monitors()[mon]
+        self.width = int(self.p_mon.width/8)
+        self.height = int(self.p_mon.height/4)
+        self.box_top = self.p_mon.height - self.height - 100
+        self.box_left = self.p_mon.width - self.width
 
     def change_box(self, top, left, width, height):
         """ Configures the box to read from """

@@ -9,7 +9,7 @@ from reader import ImgHandler
 from screen import Screen
 import player
 
-DEBUG = False
+DEBUG = True
 
 def main():
     """ Main function - will be run if this file is specified in terminal
