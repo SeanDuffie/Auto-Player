@@ -18,7 +18,7 @@ def main():
     """
     # Initial Logger Settings
     fmt_main = "%(asctime)s\t| %(levelname)s\t| %(message)s"
-    logging.basicConfig(format=fmt_main, level=logging.INFO, datefmt="%Y-%m-%d %H:%M:%S")
+    logging.basicConfig(format=fmt_main, level=logging.DEBUG, datefmt="%Y-%m-%d %H:%M:%S")
 
     # Initialize the Screen Capture and the Text Reader
     scn = Screen()
@@ -51,7 +51,7 @@ def main():
 
         # Quit out of the program if any key is pressed
         # FIXME: This is bad, it only registers if the focus is on an image preview
-        # Key = cv2.waitKey(17)
+        Key = cv2.waitKey(17)
         # if Key != -1:
         #     break
 
