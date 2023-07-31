@@ -1,6 +1,8 @@
 """ reader.py
     This file will handle any reading of the image
-    The 
+    
+    Pytesseract Documentation - https://pypi.org/project/pytesseract/
+    Google's Tesseract-OCR is used for reading text
 """
 import sys
 import logging

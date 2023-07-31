@@ -1,12 +1,14 @@
 """ main.py
 """
-import time
 import logging
 import sys
-import cv2
+import time
 
+import cv2
+import keyboard
 from reader import ImgHandler
 from screen import Screen
+
 import player
 
 DEBUG = True
@@ -43,15 +45,29 @@ def main():
             rdr.show_img()
             logging.debug("%s\t| %s", __name__, text)
 
+        """
+        Potential Phrases
+            - Fishing Bobber Splashes
+            - Fishing Bobber Thrown
+            - Fishing Bobber Retrieved
+
+            NOTE: Only individual words should be searched for, as Tesseract-OCR has a hard time
+            reading the Minecraft font and often has typos.
+        """
+
         # Parse text string from image
         if "Fishing" in text:       # Detect if the Bobber has a fish
-            # Avoid spamming the reel until the first caption expires
-            if "Bobber" not in text and "Thrown" not in text and "Retrieved" not in text:
+
+            # List of potential words that indicate the bobber has already been interacted with
+            spam_words = ["Bobber", "Thrown", "Retrieved"]
+            if spam_words not in text:  # Avoid spamming the reel until the first caption expires
+                # Because recast_fisher() presses right click twice, it only needs to be called when 
                 player.recast_fisher()
 
         # Quit out of the program if any key is pressed
         # FIXME: This is bad, it only registers if the focus is on an image preview
         Key = cv2.waitKey(17)
+        # Key = keyboard.read_key()
         # if Key != -1:
         #     break
 
