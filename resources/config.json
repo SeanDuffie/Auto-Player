@@ -1,0 +1,35 @@
+{
+    "Minecraft": {
+        "Features": ["Auto Fishing"],
+        "Words": ["Fishing"],
+        "Buttons": ["right click"],
+        "Box": {
+            "top": 0.75,
+            "left": 0.875,
+            "width": 0.125,
+            "height": 0.25
+        }
+    },
+    "Youtube": {
+        "Features": ["Auto Skip"],
+        "Words": ["Skip Ad"],
+        "Buttons": ["left click"],
+        "Box": {
+            "top": 0.75,
+            "left": 0.875,
+            "width": 0.125,
+            "height": 0.25
+        }
+    },
+    "SevenDays": {
+        "Features": ["Auto Run"],
+        "Words": ["/"],
+        "Buttons": ["w", "shift"],
+        "Box": {
+            "top": 0.9,
+            "left": 0.035,
+            "width": 0.055,
+            "height": 0.05
+    }
+    }
+}
