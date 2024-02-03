@@ -27,9 +27,9 @@ def minecraft():
     # Initialize the Screen Capture and the Text Reader
     bbox = {
         "top": 0.75,
-        "left": 0.875,
-        "width": 0.125,
-        "height": 0.25
+        "left": 0.84,
+        "width": 0.16,
+        "height": 0.16
     }
     scn = Screen(box=bbox)
     rdr = ImgHandler(scn.get_image())
@@ -61,11 +61,11 @@ def minecraft():
 
         # Parse text string from image
         if "Fishing" in text:       # Detect if the Bobber has a fish
+            ltext: str = text.lower()
 
             # List of potential words that indicate the bobber has already been interacted with
-            spam_words = ["Bobber", "Thrown", "Retrieved"]
-            if spam_words not in text:  # Avoid spamming the reel until the first caption expires
-                # Because recast_fisher() presses right click twice, it only needs to be called when 
+            spam_words = ["thrown", "retr"]
+            if not any(x in ltext for x in spam_words):  # Avoid spamming the reel after catch
                 plyr.mouse_clicks(button="right", count=2, interval=0.25)
 
         # Quit out of the program if "q" or "esc" are pressed
