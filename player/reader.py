@@ -19,6 +19,8 @@ class ImgHandler:
         if img is not None:
             self.img = img
             self.preprocess()
+        else:
+            print("ERROR: image is None")
         self.contours = None
         self.hierarchy = None
 
