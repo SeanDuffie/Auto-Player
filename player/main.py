@@ -2,16 +2,19 @@
 """
 import logging
 import sys
+import threading
 import time
 
 import cv2
-import keyboard
+from hotkeys import Hotkey
 from reader import ImgHandler
 from screen import Screen
 
 from player import Player
 
 DEBUG = True
+ACTIVE = False
+ALIVE = True
 
 def minecraft():
     """ Reads audio subtitles and automatically casts/retrieves when fish grab the line
@@ -35,14 +38,6 @@ def minecraft():
     rdr = ImgHandler(scn.get_image())
     plyr = Player()
 
-    # Give the user time to switch windows and then cast the rod
-    logging.info("%s\t| Starting in\t3...", __name__)
-    time.sleep(1)
-    logging.info("%s\t| \t\t2...", __name__)
-    time.sleep(1)
-    logging.info("%s\t| \t\t1...", __name__)
-    time.sleep(1)
-
     # Initial Click
     plyr.mouse_clicks(button="right")
 
@@ -51,8 +46,9 @@ def minecraft():
         rdr.update_img(scn.get_image())
         try:
             text = rdr.read_text()
-        except:
-            logging.error("Failed to read Text")
+        except UnboundLocalError: # Thrown when the image is blank or monocolor
+            # logging.error("Failed to read Text")
+            pass
 
         # If in debug mode, show the image being read, and the text that came from it
         if DEBUG:
@@ -94,63 +90,82 @@ def sevendays():
     scn = Screen(box=bbox)
     rdr = ImgHandler(scn.get_image())
     plyr = Player()
+    htky = Hotkey("g") # FIXME: Either this optional or fix the lag
 
-    # Give the user time to switch windows and then cast the rod
-    logging.info("%s\t| Starting in\t3...", __name__)
-    time.sleep(1)
-    logging.info("%s\t| \t\t2...", __name__)
-    time.sleep(1)
-    logging.info("%s\t| \t\t1...", __name__)
-    time.sleep(1)
+    def control():
+        global ACTIVE, ALIVE
 
-    active: bool = False
-    plyr.key_down("w")
+        while ALIVE:
+            # Grab a new image from the screen and read the text
+            rdr.update_img(scn.get_image())
 
-    while True:
-        # Grab a new image from the screen and read the text
-        rdr.update_img(scn.get_image())
-        # If in debug mode, show the image being read, and the text that came from it
-        if DEBUG:
-            rdr.show_img()
+            # If in debug mode, show the image being read, and the text that came from it
+            if DEBUG:
+                rdr.show_img()
 
-        # try:
-        text: str = rdr.read_text()
-        # except:
-        #     logging.error("Failed to read Text")
+            if ACTIVE:
+                plyr.key_down("w")
 
-        # Split values and remove incorrect numbers
-        try:
-            if text != "":
-                # logging.info("%s\t| \t\t%s", __name__, text)
-                current, total = text.split("/", 1)
-                current = int("".join(c for c in current if c.isdigit()))
-                total = int("".join(c for c in total if c.isdigit()))
-                ratio = current/total
-                logging.info("Ratio = %.2f", ratio)
+                try:
+                    text: str = rdr.read_text()
+                except UnboundLocalError: # Thrown when the image is blank or monocolor
+                    # logging.error("Failed to read Text")
+                    pass
 
-                # if current is greater than 90% total, start sprinting
-                if not active and ratio > .9:
-                    plyr.key_down("w")
-                    plyr.key_down("shiftleft")
-                    active = True
-                elif active and ratio < .1:
-                    plyr.key_down("w")
-                    plyr.key_up("shiftleft")
-                    active = False
+                # Split values and remove incorrect numbers
+                try:
+                    if text != "":
+                        # logging.info("%s\t| \t\t%s", __name__, text)
+                        current, total = text.split("/", 1)
+                        current = int("".join(c for c in current if c.isdigit()))
+                        total = int("".join(c for c in total if c.isdigit()))
+                        ratio = current/total
+                        logging.info("Ratio = %.2f", ratio)
+
+                        # if current is greater than 90% total, start sprinting
+                        if ratio > .9:
+                            plyr.key_down("shiftleft")
+                        # if current is less than 10% total, stop sprinting
+                        elif ratio < .1:
+                            plyr.key_up("shiftleft")
+                    else:
+                        logging.warning("No text detected")
+                        # pass
+                except ValueError:
+                    logging.error("Failed to split text")
+                    # pass
             else:
-                logging.warning("No text detected")
-        except ValueError:
-            logging.error("Failed to split text")
+                logging.info("Inactive")
+                plyr.key_up("w")
+                plyr.key_up("shiftleft")
+                while not ACTIVE:
+                    if ALIVE:
+                        time.sleep(.1)
+                    else:
+                        break
+                logging.info("Active")
+        logging.warning("Control Finished")
 
-        # Quit out of the program if "q" or "esc" are pressed
-        # FIXME: This is bad, it only registers if the focus is on an image preview
-        Key = cv2.waitKeyEx(17)
-        if Key in (27, 113):
-            plyr.key_up("w")
-            plyr.key_up("shiftleft")
-            break
-        elif Key != -1:
-            logging.info(Key)
+    def check():
+        """_summary_
+        """
+        global ACTIVE, ALIVE
+        while ALIVE:
+            if ACTIVE != htky.active:
+                ACTIVE = htky.active
+                logging.info("Script Active? %s", ACTIVE)
+            ALIVE = htky.alive
+        logging.warning("Check Finished")
+
+
+    t1 = threading.Thread(target=control, args=())
+    t2 = threading.Thread(target=check, args=())
+    t1.start()
+    t2.start()
+
+    htky.run()
+    t1.join()
+    t2.join()
 
 def resize():
     """ Give user a chance to preview the readable screen area
@@ -161,24 +176,16 @@ def resize():
     scn = Screen()
     rdr = ImgHandler(scn.get_image())
 
-    # Give the user time to switch windows and then cast the rod
-    logging.info("%s\t| Starting in\t3...", __name__)
-    time.sleep(1)
-    logging.info("%s\t| \t\t2...", __name__)
-    time.sleep(1)
-    logging.info("%s\t| \t\t1...", __name__)
-    time.sleep(1)
-
-    print("  1) Top\n  2) Left\n  3) Height\n  4) Width\n")
-
     while True:
         # Grab a new image from the screen and read the text
         rdr.update_img(scn.get_image())
+        # Show the image being read, and the text that came from it
+        rdr.show_img()
 
-        # If in debug mode, show the image being read, and the text that came from it
-        if DEBUG:
-            rdr.show_img()
-        Key = cv2.waitKeyEx(17)
+        # Select the image with mouse, then use key inputs to modify
+        # Key = cv2.waitKeyEx(17)'
+        logging.info('  1) Top    2) Left\n  3) Height\n  4) Width\r')
+        Key = f"{input('Selected: ')}"
         match Key:
             case 49:
                 new_top = float(input("Enter new top pixel (0-1, percent of screen): "))
@@ -202,15 +209,16 @@ def resize():
                 print(Key)
 
 def main():
-    """ Main function - will be run if this file is specified in terminal
-
-        Launches the AutoFisher
+    """ Main function
+        - Configures the logging features
+        - Allows user to select game/mode
+        - Launches the chosen automated feature
     """
     # Initial Logger Settings
     fmt_main = "%(asctime)s\t| %(levelname)s\t| %(message)s"
     logging.basicConfig(format=fmt_main, level=logging.DEBUG, datefmt="%Y-%m-%d %H:%M:%S")
 
-    # TODO: Select Mode
+    # Select Mode using the terminal
     mode = int(input(
         "Enter the mode:\n 1) Minecraft Autofishing\n 2) 7 Days Autorunning\n 3) Resize\n"
     ))
@@ -227,13 +235,6 @@ def main():
             resize()
         case _:
             logging.info("%s\t| Unknown Mode", __name__)
-
-        # Key = keyboard.read_key()
-        # match Key:
-        #     case -1:
-        #         pass
-        #     case _:
-        #         logging.debug("%s\t| %d", __name__, Key)
 
 if __name__ == "__main__":
     sys.exit(main())
