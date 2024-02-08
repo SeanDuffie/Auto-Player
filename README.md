@@ -2,7 +2,7 @@
 This project is intended to simplify repetitive computer tasks - often game related.
 
 It uses Image Processing - specifically google's pytesseract ocr - to read text on the screen in configurable locations,
-process it, and control the user's keyboard in various ways based.
+process it, and control the user's keyboard in various ways based on a json entry supplied by the user.
 
 Use cases include:
 - Auto Fishing in Minecraft (using audio subtitles)
