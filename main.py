@@ -7,17 +7,15 @@ import threading
 import time
 
 import cv2
-from hotkeys import Hotkey
-from reader import ImgHandler
-from screen import Screen
 
-from player import Player
+import bot
 
 DEBUG = True
 
 # Initial Logger Settings
-fmt_main = "%(asctime)s\t| %(levelname)s\t| %(message)s"
-logging.basicConfig(format=fmt_main, level=logging.DEBUG, datefmt="%Y-%m-%d %H:%M:%S")
+FMT_MAIN = "%(asctime)s\t| %(levelname)s\t| %(message)s"
+logging.basicConfig(format=FMT_MAIN, level=logging.DEBUG, datefmt="%Y-%m-%d %H:%M:%S")
+
 
 def minecraft():
     """ Reads audio subtitles and automatically casts/retrieves when fish grab the line
@@ -37,9 +35,9 @@ def minecraft():
         "width": 0.16,
         "height": 0.16
     }
-    scn = Screen(box=bbox)
-    rdr = ImgHandler(scn.get_image())
-    plyr = Player()
+    scn = bot.Screen(box=bbox)
+    rdr = bot.ImgHandler(scn.get_image())
+    plyr = bot.Player()
 
     # Initial Click
     plyr.mouse_clicks(button="right")
@@ -95,10 +93,10 @@ def sevendays():
             "width": 0.055,
             "height": 0.05
     }
-    scn = Screen(box=bbox)
-    rdr = ImgHandler(scn.get_image())
-    plyr = Player()
-    htky = Hotkey()  # FIXME: Either make this optional or fix the lag
+    scn = bot.Screen(box=bbox)
+    rdr = bot.ImgHandler(scn.get_image())
+    plyr = bot.Player()
+    htky = bot.Hotkey()  # FIXME: Either make this optional or fix the lag
     t1 = threading.Thread(target=htky.run, args=())
     t1.start()
 
@@ -108,9 +106,7 @@ def sevendays():
 
         # If in debug mode, show the image being read, and the text that came from it
         if DEBUG:
-            img = rdr.show_img()
-            cv2.imshow("Screen Preview", img)
-            time.sleep(.2)
+            rdr.show_img()
 
         if htky.active:
             plyr.key_down("w")
@@ -163,8 +159,8 @@ def resize():
         Resize the box by typing new percentages into the terminal
     """
     # Initialize the Screen Capture and the Text Reader
-    scn = Screen()
-    rdr = ImgHandler(scn.get_image())
+    scn = bot.Screen()
+    rdr = bot.ImgHandler(scn.get_image())
 
     while True:
         # Grab a new image from the screen and read the text

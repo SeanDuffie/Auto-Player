@@ -12,10 +12,11 @@ import cv2
 import pytesseract
 
 # Initial Logger Settings
-fmt_main = "%(asctime)s\t| %(levelname)s\t| %(message)s"
-logging.basicConfig(format=fmt_main, level=logging.DEBUG, datefmt="%Y-%m-%d %H:%M:%S")
+FMT_MAIN = "%(asctime)s\t| %(levelname)s\t| %(message)s"
+logging.basicConfig(format=FMT_MAIN, level=logging.DEBUG, datefmt="%Y-%m-%d %H:%M:%S")
 
 DEBUG = False
+
 
 class ImgHandler:
     """ Tracks and reads an image """
