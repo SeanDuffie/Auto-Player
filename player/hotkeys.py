@@ -1,38 +1,58 @@
 """hotkeys.py
 """
 import logging
-import multiprocessing
+# import multiprocessing as mp
 import threading
 import time
 
 from pynput import keyboard
 
+# Initial Logger Settings
+fmt_main = "%(asctime)s\t| %(levelname)s\t| %(message)s"
+logging.basicConfig(format=fmt_main, level=logging.DEBUG, datefmt="%Y-%m-%d %H:%M:%S")
 
 class Hotkey:
     """_summary_
     """
-    def __init__(self, key: str):
+    def __init__(self, toggle_key: str | keyboard.Key = keyboard.Key.alt_gr, kill_key: str | keyboard.Key = keyboard.Key.ctrl_r):
         # Set key to be monitored
-        # self.key = key
-        # self.key = keyboard.Key(key)
-        self.key = keyboard.Key.alt_gr
+        if isinstance(toggle_key, str):
+            self.toggle_key = keyboard.KeyCode.from_char(toggle_key)
+        else:
+            self.toggle_key = toggle_key
+        if isinstance(kill_key, str):
+            self.kill_key = keyboard.KeyCode.from_char(kill_key)
+        else:
+            self.kill_key = kill_key
+
+        logging.info("toggle_key = %s", self.toggle_key)
+        logging.info("kill_key = %s", self.kill_key)
 
         # Variable to contain state
         self.active = False
         self.alive = True
         self.keys_pressed = set()
 
+        # # Multiprocessing stuff
+        # self.toggle_event = mp.Event()
+        # self.kill_event = mp.Event()
+
+        # self.thread = mp.Process(target=)
+
     def on_press(self, key):
         """_summary_
 
         Args:
             key (_type_): _description_
+
+        Returns:
+            _type_: _description_
         """
         if self.alive:
             if key not in self.keys_pressed:
                 self.keys_pressed.add(key)
                 # print(key)
-                if key == self.key:
+                if key == self.toggle_key:
                     self.active = not self.active
         else:
             logging.info("Killed Press Listener")
@@ -52,11 +72,12 @@ class Hotkey:
             self.keys_pressed.remove(key)
         except KeyError:
             pass  # started with key pressed?
-        if key == keyboard.Key.ctrl_r:
+        if key == self.kill_key:
             # Stop keyboard.Listener
             self.alive = False
             logging.info("Killed Release Listener")
             return False
+        return True
 
     def run(self):
         """_summary_
@@ -79,16 +100,15 @@ class Hotkey:
         listener.join()
         logging.info("Hotkey Finished")
 
-    def quit(self):
-        pass
+    # def quit(self):
+    #     self.toggle_event.clear()
+    #     self.kill_event.set()
+        
+    #     self.thread.join()
 
 
 if __name__ == "__main__":
-    # Initial Logger Settings
-    fmt_main = "%(asctime)s\t| %(levelname)s\t| %(message)s"
-    logging.basicConfig(format=fmt_main, level=logging.DEBUG, datefmt="%Y-%m-%d %H:%M:%S")
-
-    htky = Hotkey("g")
+    htky = Hotkey()
     t1= threading.Thread(target=htky.run)
     logging.info("Starting hotkey thread")
     t1.start()
@@ -98,13 +118,13 @@ if __name__ == "__main__":
         if htky.active:
             pass
         else:
-            print("Inactive")
+            logging.info("Inactive")
             while not htky.active:
                 if htky.alive:
                     time.sleep(1)
                 else:
                     break
-            print("Active")
+            logging.info("Active")
     logging.info("State Machine Finished")
 
     t1.join()

@@ -72,6 +72,7 @@ class ImgHandler:
 
         # Apply a Gaussian Blur, this seems to work the best overall when given a white background and dark text
         dilation = cv2.GaussianBlur(thresh, (7,7), 0)
+        self.img = dilation.copy()
         if DEBUG:
             cv2.imshow("Dilation", dilation)
 
@@ -79,6 +80,7 @@ class ImgHandler:
         contours = cv2.findContours(dilation, cv2.RETR_EXTERNAL,
                                                 cv2.CHAIN_APPROX_NONE)[0]
 
+        # FIXME: May be able to do this without contours
         # Looping through the identified contours
         # Then rectangular part is cropped and passed on
         # to pytesseract for extracting text from it
@@ -93,7 +95,8 @@ class ImgHandler:
             # Apply OCR on the cropped image
             text += pytesseract.image_to_string(cropped)
 
-            cv2.imshow("cropped", cropped)
+            if DEBUG:
+                cv2.imshow("cropped", dilation)
 
         return text
 

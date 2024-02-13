@@ -1,6 +1,7 @@
 """ main.py
 """
 import logging
+# import multiprocessing as mp
 import sys
 import threading
 import time
@@ -13,8 +14,10 @@ from screen import Screen
 from player import Player
 
 DEBUG = True
-ACTIVE = False
-ALIVE = True
+
+# Initial Logger Settings
+fmt_main = "%(asctime)s\t| %(levelname)s\t| %(message)s"
+logging.basicConfig(format=fmt_main, level=logging.DEBUG, datefmt="%Y-%m-%d %H:%M:%S")
 
 def minecraft():
     """ Reads audio subtitles and automatically casts/retrieves when fish grab the line
@@ -75,6 +78,11 @@ def minecraft():
 def sevendays():
     """ Monitors Stamina and chooses to sprint or walk bases on exhaustion
     
+        FIXME: Move threaded functions to hotkey.run()
+        FIXME: Put keyboard.Listener on a Process rather than a thread
+        FIXME: control() should be on the main thread
+        FIXME: I might be able to get rid of the check() function by using htky.active directly
+        
         Control Logic
         - Reads "current/total stamina" (ex. "87/100")
         - if current stamina is greater than 90% of total, start sprinting
@@ -90,82 +98,64 @@ def sevendays():
     scn = Screen(box=bbox)
     rdr = ImgHandler(scn.get_image())
     plyr = Player()
-    htky = Hotkey("g") # FIXME: Either this optional or fix the lag
-
-    def control():
-        global ACTIVE, ALIVE
-
-        while ALIVE:
-            # Grab a new image from the screen and read the text
-            rdr.update_img(scn.get_image())
-
-            # If in debug mode, show the image being read, and the text that came from it
-            if DEBUG:
-                rdr.show_img()
-
-            if ACTIVE:
-                plyr.key_down("w")
-
-                try:
-                    text: str = rdr.read_text()
-                except UnboundLocalError: # Thrown when the image is blank or monocolor
-                    # logging.error("Failed to read Text")
-                    pass
-
-                # Split values and remove incorrect numbers
-                try:
-                    if text != "":
-                        # logging.info("%s\t| \t\t%s", __name__, text)
-                        current, total = text.split("/", 1)
-                        current = int("".join(c for c in current if c.isdigit()))
-                        total = int("".join(c for c in total if c.isdigit()))
-                        ratio = current/total
-                        logging.info("Ratio = %.2f", ratio)
-
-                        # if current is greater than 90% total, start sprinting
-                        if ratio > .9:
-                            plyr.key_down("shiftleft")
-                        # if current is less than 10% total, stop sprinting
-                        elif ratio < .1:
-                            plyr.key_up("shiftleft")
-                    else:
-                        logging.warning("No text detected")
-                        # pass
-                except ValueError:
-                    logging.error("Failed to split text")
-                    # pass
-            else:
-                logging.info("Inactive")
-                plyr.key_up("w")
-                plyr.key_up("shiftleft")
-                while not ACTIVE:
-                    if ALIVE:
-                        time.sleep(.1)
-                    else:
-                        break
-                logging.info("Active")
-        logging.warning("Control Finished")
-
-    def check():
-        """_summary_
-        """
-        global ACTIVE, ALIVE
-        while ALIVE:
-            if ACTIVE != htky.active:
-                ACTIVE = htky.active
-                logging.info("Script Active? %s", ACTIVE)
-            ALIVE = htky.alive
-        logging.warning("Check Finished")
-
-
-    t1 = threading.Thread(target=control, args=())
-    t2 = threading.Thread(target=check, args=())
+    htky = Hotkey()  # FIXME: Either make this optional or fix the lag
+    t1 = threading.Thread(target=htky.run, args=())
     t1.start()
-    t2.start()
 
-    htky.run()
+    while htky.alive:
+        # Grab a new image from the screen and read the text
+        rdr.update_img(scn.get_image())
+
+        # If in debug mode, show the image being read, and the text that came from it
+        if DEBUG:
+            img = rdr.show_img()
+            cv2.imshow("Screen Preview", img)
+            time.sleep(.2)
+
+        if htky.active:
+            plyr.key_down("w")
+
+            try:
+                text: str = rdr.read_text()
+            except UnboundLocalError: # Thrown when the image is blank or monocolor
+                # logging.error("Failed to read Text")
+                pass
+
+            # Split values and remove incorrect numbers
+            try:
+                if text != "":
+                    # logging.info("%s\t| \t\t%s", __name__, text)
+                    current, total = text.split("/", 1)
+                    current = int("".join(c for c in current if c.isdigit()))
+                    total = int("".join(c for c in total if c.isdigit()))
+                    ratio = current/total
+                    logging.info("Ratio = %.2f", ratio)
+
+                    # if current is greater than 90% total, start sprinting
+                    if ratio > .9:
+                        plyr.key_down("shiftleft")
+                    # if current is less than 10% total, stop sprinting
+                    elif ratio < .1:
+                        plyr.key_up("shiftleft")
+                else:
+                    logging.warning("No text detected")
+                    # pass
+            except ValueError:
+                logging.error("Failed to split text")
+                # pass
+        else:
+            logging.info("Inactive")
+            plyr.key_up("w")
+            plyr.key_up("shiftleft")
+            while not htky.active:
+                if htky.alive:
+                    time.sleep(.1)
+                else:
+                    break
+            logging.info("Active")
+
     t1.join()
-    t2.join()
+    logging.info("End main")
 
 def resize():
     """ Give user a chance to preview the readable screen area
@@ -214,9 +204,6 @@ def main():
         - Allows user to select game/mode
         - Launches the chosen automated feature
     """
-    # Initial Logger Settings
-    fmt_main = "%(asctime)s\t| %(levelname)s\t| %(message)s"
-    logging.basicConfig(format=fmt_main, level=logging.DEBUG, datefmt="%Y-%m-%d %H:%M:%S")
 
     # Select Mode using the terminal
     mode = int(input(
