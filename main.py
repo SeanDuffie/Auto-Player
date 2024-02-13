@@ -38,40 +38,51 @@ def minecraft():
     scn = bot.Screen(box=bbox)
     rdr = bot.ImgHandler(scn.get_image())
     plyr = bot.Player()
+    htky = bot.Hotkey()  # FIXME: Either make this optional or fix the lag
+    t1 = threading.Thread(target=htky.run, args=())
+    t1.start()
 
     # Initial Click
     plyr.mouse_clicks(button="right")
 
-    while True:
-        # Grab a new image from the screen and read the text
-        rdr.update_img(scn.get_image())
-        try:
-            text = rdr.read_text()
-        except UnboundLocalError: # Thrown when the image is blank or monocolor
-            # logging.error("Failed to read Text")
-            pass
+    while htky.alive:
+        if htky.active:
 
-        # If in debug mode, show the image being read, and the text that came from it
-        if DEBUG:
-            rdr.show_img()
-            # logging.debug("%s\t| %s", __name__, text)
+            # Grab a new image from the screen and read the text
+            rdr.update_img(scn.get_image())
 
-        # Parse text string from image
-        if "Fishing" in text:       # Detect if the Bobber has a fish
-            ltext: str = text.lower()
+            try:
+                text = rdr.read_text()
+            except UnboundLocalError: # Thrown when the image is blank or monocolor
+                logging.error("Failed to read Text")
+                text = ""
 
-            # List of potential words that indicate the bobber has already been interacted with
-            spam_words = ["thrown", "retr"]
-            if not any(x in ltext for x in spam_words):  # Avoid spamming the reel after catch
-                plyr.mouse_clicks(button="right", count=2, interval=0.25)
+            # If in debug mode, show the image being read, and the text that came from it
+            if DEBUG:
+                rdr.show_img()
+                logging.debug("%s\t| %s", __name__, text)
+
+            # Parse text string from image
+            if "Fishing" in text:       # Detect if the Bobber has a fish
+                ltext: str = text.lower()
+
+                # List of potential words that indicate the bobber has already been interacted with
+                spam_words = ["thrown", "retr"]
+                if not any(x in ltext for x in spam_words):  # Avoid spamming the reel after catch
+                    plyr.mouse_clicks(button="right", count=2, interval=0.25)
 
         # Quit out of the program if "q" or "esc" are pressed
-        # FIXME: This is bad, it only registers if the focus is on an image preview
-        Key = cv2.waitKeyEx(17)
-        if Key in (27, 113):
-            break
-        if Key != -1:
-            logging.info(Key)
+        else:
+            logging.info("Inactive")
+            while not htky.active:
+                if htky.alive:
+                    cv2.waitKey(17)
+                else:
+                    break
+            logging.info("Active")
+
+    t1.join()
+    logging.info("End main")
 
 def sevendays():
     """ Monitors Stamina and chooses to sprint or walk bases on exhaustion
@@ -101,21 +112,21 @@ def sevendays():
     t1.start()
 
     while htky.alive:
-        # Grab a new image from the screen and read the text
-        rdr.update_img(scn.get_image())
-
-        # If in debug mode, show the image being read, and the text that came from it
-        if DEBUG:
-            rdr.show_img()
-
         if htky.active:
             plyr.key_down("w")
+
+            # Grab a new image from the screen and read the text
+            rdr.update_img(scn.get_image())
 
             try:
                 text: str = rdr.read_text()
             except UnboundLocalError: # Thrown when the image is blank or monocolor
-                # logging.error("Failed to read Text")
-                pass
+                logging.error("Failed to read Text")
+                text = ""
+
+            # If in debug mode, show the image being read, and the text that came from it
+            if DEBUG:
+                rdr.show_img()
 
             # Split values and remove incorrect numbers
             try:
@@ -145,7 +156,7 @@ def sevendays():
             plyr.key_up("shiftleft")
             while not htky.active:
                 if htky.alive:
-                    time.sleep(.1)
+                    cv2.waitKey(17)
                 else:
                     break
             logging.info("Active")
@@ -169,7 +180,6 @@ def resize():
         rdr.show_img()
 
         # Select the image with mouse, then use key inputs to modify
-        # Key = cv2.waitKeyEx(17)'
         logging.info('  1) Top    2) Left\n  3) Height\n  4) Width\r')
         Key = f"{input('Selected: ')}"
         match Key:
