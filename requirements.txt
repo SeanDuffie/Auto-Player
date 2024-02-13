@@ -1,5 +1,9 @@
+pynput
 pyautogui
 pytesseract
 keyboard
 mss
 screeninfo
+opencv-python
+logging
+tk
