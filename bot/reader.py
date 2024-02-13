@@ -17,13 +17,13 @@ logging.basicConfig(format=FMT_MAIN, level=logging.DEBUG, datefmt="%Y-%m-%d %H:%
 
 DEBUG = False
 
+# Mention the installed location of Tesseract-OCR in your system
+pytesseract.pytesseract.tesseract_cmd = r'/Program Files/Tesseract-OCR/tesseract.exe'
+
 
 class ImgHandler:
     """ Tracks and reads an image """
     def __init__(self, img=None) -> None:
-        # Mention the installed location of Tesseract-OCR in your system
-        pytesseract.pytesseract.tesseract_cmd = r'/Program Files/Tesseract-OCR/tesseract.exe'
-
         self.wp = 255
         self.bp = 0
 
@@ -40,6 +40,7 @@ class ImgHandler:
     def show_img(self):
         """ Show the current image being processed """
         cv2.imshow("Screen Preview", self.img)
+        cv2.waitKey(17)
 
     def read_text(self, white_text: bool = True):
         """ Read the text contained within the bounding box """
