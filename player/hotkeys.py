@@ -1,9 +1,11 @@
 """hotkeys.py
 """
 import logging
-import time
-from pynput.keyboard import Key, Listener
+import multiprocessing
 import threading
+import time
+
+from pynput import keyboard
 
 
 class Hotkey:
@@ -12,8 +14,8 @@ class Hotkey:
     def __init__(self, key: str):
         # Set key to be monitored
         # self.key = key
-        # self.key = Key(key)
-        self.key = Key.alt_gr
+        # self.key = keyboard.Key(key)
+        self.key = keyboard.Key.alt_gr
 
         # Variable to contain state
         self.active = False
@@ -29,11 +31,13 @@ class Hotkey:
         if self.alive:
             if key not in self.keys_pressed:
                 self.keys_pressed.add(key)
+                # print(key)
                 if key == self.key:
                     self.active = not self.active
         else:
-            logging.info("killed press")
+            logging.info("Killed Press Listener")
             return False
+        return True
 
     def on_release(self, key):
         """_summary_
@@ -48,10 +52,10 @@ class Hotkey:
             self.keys_pressed.remove(key)
         except KeyError:
             pass  # started with key pressed?
-        if key == Key.ctrl_r:
-            # Stop listener
+        if key == keyboard.Key.ctrl_r:
+            # Stop keyboard.Listener
             self.alive = False
-            logging.info("killed release")
+            logging.info("Killed Release Listener")
             return False
 
     def run(self):
@@ -62,9 +66,9 @@ class Hotkey:
         start = time.time()
 
         # Don't suppress, that disables keyboard output
-        listener = Listener(
+        listener = keyboard.Listener(
                 on_press=self.on_press,
-                on_release=self.on_release)
+                on_release=self.on_release,)
 
         logging.info("Listening...")
         listener.start()
@@ -75,53 +79,33 @@ class Hotkey:
         listener.join()
         logging.info("Hotkey Finished")
 
+    def quit(self):
+        pass
+
 
 if __name__ == "__main__":
     # Initial Logger Settings
     fmt_main = "%(asctime)s\t| %(levelname)s\t| %(message)s"
     logging.basicConfig(format=fmt_main, level=logging.DEBUG, datefmt="%Y-%m-%d %H:%M:%S")
 
-    ACTIVE = False
-    ALIVE = True
-
     htky = Hotkey("g")
-
-    def foo():
-        """_summary_
-        """
-        global ACTIVE, ALIVE
-        while ALIVE:
-            if ACTIVE:
-                pass
-            else:
-                while not ACTIVE:
-                    if ALIVE:
-                        time.sleep(1)
-                    else:
-                        break
-        logging.info("Foo Finished")
-
-    def check():
-        """_summary_
-        """
-        global ACTIVE, ALIVE
-        while ALIVE:
-            if ACTIVE != htky.active:
-                logging.info("Active = %s", htky.active)
-                ACTIVE = htky.active
-            ALIVE = htky.alive
-        logging.info("Check Finished")
-
-    t1 = threading.Thread(target=foo)
-    t2 = threading.Thread(target=check)
-    logging.info("Starting t1")
-    t1.start()
-    logging.info("Starting t2")
-    t2.start()
-
-
+    t1= threading.Thread(target=htky.run)
     logging.info("Starting hotkey thread")
-    htky.run()
+    t1.start()
+
+    logging.info("Starting state machine")
+    while htky.alive:
+        if htky.active:
+            pass
+        else:
+            print("Inactive")
+            while not htky.active:
+                if htky.alive:
+                    time.sleep(1)
+                else:
+                    break
+            print("Active")
+    logging.info("State Machine Finished")
+
     t1.join()
-    t2.join()
     logging.info("End main")
