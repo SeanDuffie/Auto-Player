@@ -37,9 +37,9 @@ class ImgHandler:
         """ Replace the current image being read """
         self.img = img
 
-    def show_img(self):
+    def show_img(self, name: str = "Screen Preview"):
         """ Show the current image being processed """
-        cv2.imshow("Screen Preview", self.img)
+        cv2.imshow(name, self.img)
         cv2.waitKey(17)
 
     def read_text(self, white_text: bool = True):
