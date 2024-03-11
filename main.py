@@ -118,6 +118,10 @@ def sevendays():
             # Grab a new image from the screen and read the text
             rdr.update_img(scn.get_image())
 
+            # If in debug mode, show the image being read, and the text that came from it
+            if DEBUG:
+                rdr.show_img("Preview Raw")
+
             try:
                 text: str = rdr.read_text()
             except UnboundLocalError: # Thrown when the image is blank or monocolor
@@ -163,6 +167,36 @@ def sevendays():
 
     t1.join()
     logging.info("End main")
+
+def youtube():
+    # Initialize the Screen Capture and the Text Reader
+    bbox = {
+        "top": 0.75,
+        "left": 0.84,
+        "width": 0.16,
+        "height": 0.16
+    }
+    scn = bot.Screen(box=bbox)
+    rdr = bot.ImgHandler(scn.get_image())
+    plyr = bot.Player()
+    htky = bot.Hotkey()  # FIXME: Either make this optional or fix the lag
+    t1 = threading.Thread(target=htky.run, args=())
+    t1.start()
+
+def aimer():
+    # Initialize the Screen Capture and the Text Reader
+    bbox = {
+        "top": 0.75,
+        "left": 0.84,
+        "width": 0.16,
+        "height": 0.16
+    }
+    scn = bot.Screen(box=bbox)
+    rdr = bot.ImgHandler(scn.get_image())
+    plyr = bot.Player()
+    htky = bot.Hotkey()  # FIXME: Either make this optional or fix the lag
+    t1 = threading.Thread(target=htky.run, args=())
+    t1.start()
 
 def resize():
     """ Give user a chance to preview the readable screen area
@@ -224,6 +258,12 @@ def main():
             logging.info("%s\t| 7 Days settings", __name__)
             sevendays()
         case 3:
+            logging.info("%s\t| YouTube settings", __name__)
+            youtube()
+        case 4:
+            logging.info("%s\t| Aimlabs settings", __name__)
+            aimer()
+        case 5:
             logging.info("%s\t| Custom settings", __name__)
             resize()
         case _:
