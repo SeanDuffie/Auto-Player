@@ -8,8 +8,7 @@ import time
 from pynput import keyboard
 
 # Initial Logger Settings
-FMT_MAIN = "%(asctime)s\t| %(levelname)s\t| %(message)s"
-logging.basicConfig(format=FMT_MAIN, level=logging.DEBUG, datefmt="%Y-%m-%d %H:%M:%S")
+logger = logging.getLogger("Main.Hotkeys")
 
 
 class Hotkey:
@@ -26,8 +25,8 @@ class Hotkey:
         else:
             self.kill_key = kill_key
 
-        logging.info("toggle_key = %s", self.toggle_key)
-        logging.info("kill_key = %s", self.kill_key)
+        logger.info("toggle_key = %s", self.toggle_key)
+        logger.info("kill_key = %s", self.kill_key)
 
         # Variable to contain state
         self.active = False
@@ -56,7 +55,7 @@ class Hotkey:
                 if key == self.toggle_key:
                     self.active = not self.active
         else:
-            logging.info("Killed Press Listener")
+            logger.info("Killed Press Listener")
             return False
         return True
 
@@ -76,7 +75,7 @@ class Hotkey:
         if key == self.kill_key:
             # Stop keyboard.Listener
             self.alive = False
-            logging.info("Killed Release Listener")
+            logger.info("Killed Release Listener")
             return False
         return True
 
@@ -84,7 +83,7 @@ class Hotkey:
         """_summary_
         """
         # Collect events until released
-        logging.info("Initializing listener...")
+        logger.info("Initializing listener...")
         start = time.time()
 
         # Don't suppress, that disables keyboard output
@@ -92,14 +91,14 @@ class Hotkey:
                 on_press=self.on_press,
                 on_release=self.on_release,)
 
-        logging.info("Listening...")
+        logger.info("Listening...")
         listener.start()
 
         stop = time.time()
-        logging.info("Took %f seconds", stop-start)
+        logger.info("Took %f seconds", stop-start)
 
         listener.join()
-        logging.info("Hotkey Finished")
+        logger.info("Hotkey Finished")
 
     # def quit(self):
     #     self.toggle_event.clear()
@@ -111,22 +110,22 @@ class Hotkey:
 if __name__ == "__main__":
     htky = Hotkey()
     t1= threading.Thread(target=htky.run)
-    logging.info("Starting hotkey thread")
+    logger.info("Starting hotkey thread")
     t1.start()
 
-    logging.info("Starting state machine")
+    logger.info("Starting state machine")
     while htky.alive:
         if htky.active:
             pass
         else:
-            logging.info("Inactive")
+            logger.info("Inactive")
             while not htky.active:
                 if htky.alive:
                     time.sleep(1)
                 else:
                     break
-            logging.info("Active")
-    logging.info("State Machine Finished")
+            logger.info("Active")
+    logger.info("State Machine Finished")
 
     t1.join()
-    logging.info("End main")
+    logger.info("End main")

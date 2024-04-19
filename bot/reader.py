@@ -12,8 +12,7 @@ import cv2
 import pytesseract
 
 # Initial Logger Settings
-FMT_MAIN = "%(asctime)s\t| %(levelname)s\t| %(message)s"
-logging.basicConfig(format=FMT_MAIN, level=logging.DEBUG, datefmt="%Y-%m-%d %H:%M:%S")
+logger = logging.getLogger("Main.Reader")
 
 DEBUG = False
 
@@ -21,7 +20,7 @@ DEBUG = False
 pytesseract.pytesseract.tesseract_cmd = r'/Program Files/Tesseract-OCR/tesseract.exe'
 
 
-class ImgHandler:
+class Reader:
     """ Tracks and reads an image """
     def __init__(self, img=None) -> None:
         self.wp = 255
@@ -46,7 +45,7 @@ class ImgHandler:
         """ Read the text contained within the bounding box """
         # Check loaded image
         if self.img is None:
-            logging.error("%s\t| No image loaded. Call update_img() or init with img.", __name__)
+            logger.error("No image loaded. Call update_img() or init with img.")
             sys.exit(1)
 
         # Convert the image to gray scale
@@ -119,7 +118,7 @@ if __name__ == "__main__":
 
         # Read and resize image
         raw_img = cv2.imread(ref_name)
-        rdr = ImgHandler(raw_img)
+        rdr = Reader(raw_img)
 
         print(rdr.read_text())
         cv2.waitKey()

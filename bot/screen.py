@@ -1,9 +1,13 @@
 """ screen.py
     Provides a tool for grabbing frames from the screen
 """
+import logging
+
 import numpy as np
 from mss import mss
 from screeninfo import get_monitors
+
+logger = logging.getLogger("Main.Screen")
 
 
 class Screen:

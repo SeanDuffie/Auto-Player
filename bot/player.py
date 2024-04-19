@@ -9,9 +9,12 @@
         - Release key
         - Momentary press
 """
+import logging
 import time
 
 import pyautogui as pg
+
+logger = logging.getLogger("Main.Player")
 
 
 class Player:
@@ -48,7 +51,7 @@ class Player:
         """
         pg.click(x=loc, clicks=count, interval=interval, button=button)
         # case _: # default
-        #     print("Invalid Mouse Button")
+        #     logger.error("Invalid Mouse Button")
         #     return False
         return True
 

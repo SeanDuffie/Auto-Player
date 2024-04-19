@@ -13,9 +13,9 @@ import bot
 DEBUG = True
 
 # Initial Logger Settings
-FMT_MAIN = "%(asctime)s\t| %(levelname)s\t| %(message)s"
+FMT_MAIN = "%(asctime)s | %(levelname)-8s | %(name)-12s | %(message)s"
 logging.basicConfig(format=FMT_MAIN, level=logging.DEBUG, datefmt="%Y-%m-%d %H:%M:%S")
-
+logger = logging.getLogger("Main.Main")
 
 def minecraft():
     """ Reads audio subtitles and automatically casts/retrieves when fish grab the line
@@ -36,7 +36,7 @@ def minecraft():
         "height": 0.16
     }
     scn = bot.Screen(box=bbox)
-    rdr = bot.ImgHandler(scn.get_image())
+    rdr = bot.Reader(scn.get_image())
     plyr = bot.Player()
     htky = bot.Hotkey()  # FIXME: Either make this optional or fix the lag
     t1 = threading.Thread(target=htky.run, args=())
@@ -54,13 +54,13 @@ def minecraft():
             try:
                 text = rdr.read_text()
             except UnboundLocalError: # Thrown when the image is blank or monocolor
-                logging.error("Failed to read Text")
+                logger.error("Failed to read Text")
                 text = ""
 
             # If in debug mode, show the image being read, and the text that came from it
             if DEBUG:
                 rdr.show_img()
-                logging.debug("%s\t| %s", __name__, text)
+                logger.debug(text)
 
             # Parse text string from image
             if "Fishing" in text:       # Detect if the Bobber has a fish
@@ -73,16 +73,16 @@ def minecraft():
 
         # Quit out of the program if "q" or "esc" are pressed
         else:
-            logging.info("Inactive")
+            logger.info("Inactive")
             while not htky.active:
                 if htky.alive:
                     cv2.waitKey(17)
                 else:
                     break
-            logging.info("Active")
+            logger.info("Active")
 
     t1.join()
-    logging.info("End main")
+    logger.info("End main")
 
 def sevendays():
     """ Monitors Stamina and chooses to sprint or walk bases on exhaustion
@@ -105,7 +105,7 @@ def sevendays():
             "height": 0.05
     }
     scn = bot.Screen(box=bbox)
-    rdr = bot.ImgHandler(scn.get_image())
+    rdr = bot.Reader(scn.get_image())
     plyr = bot.Player()
     htky = bot.Hotkey()  # FIXME: Either make this optional or fix the lag
     t1 = threading.Thread(target=htky.run, args=())
@@ -125,7 +125,7 @@ def sevendays():
             try:
                 text: str = rdr.read_text()
             except UnboundLocalError: # Thrown when the image is blank or monocolor
-                logging.error("Failed to read Text")
+                logger.error("Failed to read Text")
                 text = ""
 
             # If in debug mode, show the image being read, and the text that came from it
@@ -135,12 +135,12 @@ def sevendays():
             # Split values and remove incorrect numbers
             try:
                 if text != "":
-                    # logging.info("%s\t| \t\t%s", __name__, text)
+                    logger.debug(text)
                     current, total = text.split("/", 1)
                     current = int("".join(c for c in current if c.isdigit()))
                     total = int("".join(c for c in total if c.isdigit()))
                     ratio = current/total
-                    logging.info("Ratio = %.2f", ratio)
+                    logger.info("Ratio = %.2f", ratio)
 
                     # if current is greater than 90% total, start sprinting
                     if ratio > .9:
@@ -149,13 +149,13 @@ def sevendays():
                     elif ratio < .1:
                         plyr.key_up("shiftleft")
                 else:
-                    logging.warning("No text detected")
+                    logger.warning("No text detected")
                     # pass
             except ValueError:
-                logging.error("Failed to split text")
+                logger.error("Failed to split text")
                 # pass
         else:
-            logging.info("Inactive")
+            logger.info("Inactive")
             plyr.key_up("w")
             plyr.key_up("shiftleft")
             while not htky.active:
@@ -163,10 +163,10 @@ def sevendays():
                     cv2.waitKey(17)
                 else:
                     break
-            logging.info("Active")
+            logger.info("Active")
 
     t1.join()
-    logging.info("End main")
+    logger.info("End main")
 
 def youtube():
     # Initialize the Screen Capture and the Text Reader
@@ -177,7 +177,7 @@ def youtube():
         "height": 0.16
     }
     scn = bot.Screen(box=bbox)
-    rdr = bot.ImgHandler(scn.get_image())
+    rdr = bot.Reader(scn.get_image())
     plyr = bot.Player()
     htky = bot.Hotkey()  # FIXME: Either make this optional or fix the lag
     t1 = threading.Thread(target=htky.run, args=())
@@ -192,7 +192,7 @@ def aimer():
         "height": 0.16
     }
     scn = bot.Screen(box=bbox)
-    rdr = bot.ImgHandler(scn.get_image())
+    rdr = bot.Reader(scn.get_image())
     plyr = bot.Player()
     htky = bot.Hotkey()  # FIXME: Either make this optional or fix the lag
     t1 = threading.Thread(target=htky.run, args=())
@@ -205,7 +205,7 @@ def resize():
     """
     # Initialize the Screen Capture and the Text Reader
     scn = bot.Screen()
-    rdr = bot.ImgHandler(scn.get_image())
+    rdr = bot.Reader(scn.get_image())
 
     while True:
         # Grab a new image from the screen and read the text
@@ -214,7 +214,7 @@ def resize():
         rdr.show_img()
 
         # Select the image with mouse, then use key inputs to modify
-        logging.info('  1) Top    2) Left\n  3) Height\n  4) Width\r')
+        logger.info('  1) Top    2) Left\n  3) Height\n  4) Width\r')
         Key = f"{input('Selected: ')}"
         match Key:
             case 49:
@@ -252,22 +252,22 @@ def main():
 
     match mode:
         case 1:
-            logging.info("%s\t| Minecraft settings", __name__)
+            logger.info("Minecraft settings")
             minecraft()
         case 2:
-            logging.info("%s\t| 7 Days settings", __name__)
+            logger.info("7 Days settings")
             sevendays()
         case 3:
-            logging.info("%s\t| YouTube settings", __name__)
+            logger.info("YouTube settings")
             youtube()
         case 4:
-            logging.info("%s\t| Aimlabs settings", __name__)
+            logger.info("Aimlabs settings")
             aimer()
         case 5:
-            logging.info("%s\t| Custom settings", __name__)
+            logger.info("Custom settings")
             resize()
         case _:
-            logging.info("%s\t| Unknown Mode", __name__)
+            logger.info("Unknown Mode")
 
 if __name__ == "__main__":
     sys.exit(main())
