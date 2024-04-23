@@ -13,7 +13,7 @@ import cv2
 import pytesseract
 
 # Initial Logger Settings
-logger = logging.getLogger("Main.Reader")
+logger = logging.getLogger("Auto")
 
 DEBUG = False
 

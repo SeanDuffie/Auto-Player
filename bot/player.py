@@ -17,7 +17,7 @@ import time
 
 import pyautogui as pg
 
-logger = logging.getLogger("Main.Player")
+logger = logging.getLogger("Auto")
 
 
 class Player:

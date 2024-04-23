@@ -18,7 +18,7 @@ import numpy as np
 from mss import mss
 from screeninfo import get_monitors
 
-logger = logging.getLogger("Main.Screen")
+logger = logging.getLogger("Auto")
 
 
 class Screen:

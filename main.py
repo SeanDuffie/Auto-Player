@@ -9,13 +9,14 @@ import threading
 import cv2
 
 import bot
+import logFormat
 
 DEBUG = True
 
 # Initial Logger Settings
-FMT_MAIN = "%(asctime)s | %(levelname)-8s | %(name)-12s | %(message)s"
-logging.basicConfig(format=FMT_MAIN, level=logging.DEBUG, datefmt="%Y-%m-%d %H:%M:%S")
-logger = logging.getLogger("Main.Main")
+logFormat.format_logs(logger_name="Auto")
+logger = logging.getLogger("Auto")
+
 
 def minecraft():
     """ Reads audio subtitles and automatically casts/retrieves when fish grab the line
@@ -264,6 +265,7 @@ def main():
             resize()
         case _:
             logger.info("Unknown Mode")
+
 
 if __name__ == "__main__":
     sys.exit(main())

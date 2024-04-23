@@ -16,7 +16,7 @@ import time
 from pynput import keyboard
 
 # Initial Logger Settings
-logger = logging.getLogger("Main.Hotkeys")
+logger = logging.getLogger("Auto")
 
 
 class Hotkey:
@@ -99,8 +99,8 @@ class Hotkey:
             # Remove the key from the held dictionary to allow further detection
             self.keys_pressed.remove(key)
         except KeyError:
-            logging.error("Keyup event detected without a keydown?")
-            # pass  # started with key pressed?
+            # logger.error("Keyup event detected without a keydown?")
+            pass  # started with key pressed?
 
         # If the observed key is the kill_key, kill the key listener
         if key == self.kill_key:
