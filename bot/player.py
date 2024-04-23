@@ -1,7 +1,10 @@
-""" player.py
+""" @file player.py
+    @author Sean Duffie
+    @brief This file handles any interactions that simulate the player.
 
-    This file handles any interactions that simulate the player.
-    It functions mainly as a wrapper for pyautogui
+    It functions mainly as a wrapper for pyautogui, so any complex instructions should be handled
+    in the main function where it was called.
+
     Mouse functions:
         - Click buttons
     Keyboard functions:
@@ -18,7 +21,8 @@ logger = logging.getLogger("Main.Player")
 
 
 class Player:
-    """_summary_
+    """ The Player class is the method to simulate human actions, such as mouse movements and
+        keyboard presses.
     """
     def __init__(self):
         pass
@@ -41,13 +45,13 @@ class Player:
         """ Click the mouse, options are configurable such as button, timing, and count.
 
         Args:
-            button (str, optional): _description_. Defaults to "right".
-            count (int, optional): _description_. Defaults to 1.
-            interval (float, optional): _description_. Defaults to 0.
-            loc (tuple[int, int]): _description_. Defaults to [None, None].
+            button (str, optional): Which mouse button to press? Defaults to "right".
+            count (int, optional): How many times to press it? Defaults to 1.
+            interval (float, optional): How long to wait between presses? Defaults to 0.
+            loc (tuple[int, int]): Which pixel should the mouse interact with? Defaults to [None, None].
 
         Returns:
-            _type_: _description_
+            bool: Was the operation successful?
         """
         pg.click(x=loc, clicks=count, interval=interval, button=button)
         # case _: # default
@@ -86,7 +90,7 @@ class Player:
             key (str | list): key(s) to be pressed (options are in the list above)
 
         Returns:
-            bool: _description_
+            bool: Was the operation successful?
         """
         if key.isType(list):
             for k in key:
@@ -132,7 +136,7 @@ class Player:
             key (str | list): key(s) to be held down (options are in the list above)
 
         Returns:
-            bool: _description_
+            bool: Was the operation successful?
         """
         if pg.isValidKey(key):
             pg.keyDown(key)
@@ -171,7 +175,7 @@ class Player:
             key (str | list):  key(s) to be released (options are in the list above)
 
         Returns:
-            bool: _description_
+            bool: Was the operation successful?
         """
         if pg.isValidKey(key):
             pg.keyUp(key)

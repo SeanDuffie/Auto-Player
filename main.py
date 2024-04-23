@@ -1,10 +1,10 @@
-""" main.py
+""" @file main.py
+    @author Sean Duffie
+    @brief main runner for the Auto-Player program.
 """
 import logging
-# import multiprocessing as mp
 import sys
 import threading
-import time
 
 import cv2
 
@@ -38,7 +38,7 @@ def minecraft():
     scn = bot.Screen(box=bbox)
     rdr = bot.Reader(scn.get_image())
     plyr = bot.Player()
-    htky = bot.Hotkey()  # FIXME: Either make this optional or fix the lag
+    htky = bot.Hotkey()
     t1 = threading.Thread(target=htky.run, args=())
     t1.start()
 
@@ -71,7 +71,6 @@ def minecraft():
                 if not any(x in ltext for x in spam_words):  # Avoid spamming the reel after catch
                     plyr.mouse_clicks(button="right", count=2, interval=0.25)
 
-        # Quit out of the program if "q" or "esc" are pressed
         else:
             logger.info("Inactive")
             while not htky.active:
@@ -86,12 +85,9 @@ def minecraft():
 
 def sevendays():
     """ Monitors Stamina and chooses to sprint or walk bases on exhaustion
-    
-        FIXME: Move threaded functions to hotkey.run()
-        FIXME: Put keyboard.Listener on a Process rather than a thread
-        FIXME: control() should be on the main thread
-        FIXME: I might be able to get rid of the check() function by using htky.active directly
-        
+
+        FIXME: It would be cleaner to template the Hotkey interface
+
         Control Logic
         - Reads "current/total stamina" (ex. "87/100")
         - if current stamina is greater than 90% of total, start sprinting
@@ -107,7 +103,7 @@ def sevendays():
     scn = bot.Screen(box=bbox)
     rdr = bot.Reader(scn.get_image())
     plyr = bot.Player()
-    htky = bot.Hotkey()  # FIXME: Either make this optional or fix the lag
+    htky = bot.Hotkey()
     t1 = threading.Thread(target=htky.run, args=())
     t1.start()
 
@@ -179,7 +175,7 @@ def youtube():
     scn = bot.Screen(box=bbox)
     rdr = bot.Reader(scn.get_image())
     plyr = bot.Player()
-    htky = bot.Hotkey()  # FIXME: Either make this optional or fix the lag
+    htky = bot.Hotkey()
     t1 = threading.Thread(target=htky.run, args=())
     t1.start()
 
@@ -194,7 +190,7 @@ def aimer():
     scn = bot.Screen(box=bbox)
     rdr = bot.Reader(scn.get_image())
     plyr = bot.Player()
-    htky = bot.Hotkey()  # FIXME: Either make this optional or fix the lag
+    htky = bot.Hotkey()
     t1 = threading.Thread(target=htky.run, args=())
     t1.start()
 

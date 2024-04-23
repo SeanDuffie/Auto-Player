@@ -1,8 +1,9 @@
-""" reader.py
-    This file will handle any reading of the image
-    
+""" @file reader.py
+    @author Sean Duffie
+    @brief This file will handle any text processing from acquired images
+
     Pytesseract Documentation - https://pypi.org/project/pytesseract/
-    Google's Tesseract-OCR is used for reading text
+    (Google's Tesseract-OCR)[https://github.com/tesseract-ocr/tesseract?tab=readme-ov-file#installing-tesseract]
 """
 import logging
 import sys
@@ -26,7 +27,7 @@ class Reader:
         self.wp = 255
         self.bp = 0
 
-        # Private Variables
+        # Class Variables
         if img is not None:
             self.img = img
         # else:
@@ -37,12 +38,23 @@ class Reader:
         self.img = img
 
     def show_img(self, name: str = "Screen Preview"):
-        """ Show the current image being processed """
+        """ Show the current image being processed
+
+        Args:
+            name (str, optional): Name of OpenCV preview window. Defaults to "Screen Preview".
+        """
         cv2.imshow(name, self.img)
         cv2.waitKey(17)
 
     def read_text(self, white_text: bool = True):
-        """ Read the text contained within the bounding box """
+        """ Read the text contained within the bounding box
+
+        Args:
+            white_text (bool, optional): If the text is white, invert colors. Defaults to True.
+
+        Returns:
+            str: all the text read from the image
+        """
         # Check loaded image
         if self.img is None:
             logger.error("No image loaded. Call update_img() or init with img.")
@@ -61,7 +73,6 @@ class Reader:
         if DEBUG:
             cv2.imshow("Threshold", thresh)
 
-        # TODO: Research into new values for structuring element
         # FIXME: This may need to be a passed variable per game
         # Specify structure shape and kernel size.
         # Kernel size increases or decreases the area
@@ -81,7 +92,6 @@ class Reader:
         contours = cv2.findContours(dilation, cv2.RETR_EXTERNAL,
                                                 cv2.CHAIN_APPROX_NONE)[0]
 
-        # FIXME: May be able to do this without contours
         # Looping through the identified contours
         # Then rectangular part is cropped and passed on
         # to pytesseract for extracting text from it
