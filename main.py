@@ -43,6 +43,9 @@ def minecraft():
     t1 = threading.Thread(target=htky.run, args=())
     t1.start()
 
+    while not htky.active:
+        cv2.waitKey(17)
+
     # Initial Click
     plyr.mouse_clicks(button="right")
 
@@ -71,6 +74,8 @@ def minecraft():
                 spam_words = ["thrown", "retr"]
                 if not any(x in ltext for x in spam_words):  # Avoid spamming the reel after catch
                     plyr.mouse_clicks(button="right", count=2, interval=0.25)
+                    # NOTE: This sleep is necessary so that there arent repeat recasts from the same sound
+                    cv2.waitKey(3000)
 
         else:
             logger.info("Inactive")
