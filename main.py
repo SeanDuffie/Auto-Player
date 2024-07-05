@@ -32,8 +32,8 @@ def minecraft():
     # Initialize the Screen Capture and the Text Reader
     bbox = {
         "top": 0.75,
-        "left": 0.84,
-        "width": 0.16,
+        "left": 0.75,
+        "width": 0.25,
         "height": 0.16
     }
     scn = bot.Screen(box=bbox)
