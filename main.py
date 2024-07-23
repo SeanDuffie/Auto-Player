@@ -249,7 +249,7 @@ def main():
 
     # Select Mode using the terminal
     mode = int(input(
-        "Enter the mode:\n 1) Minecraft Autofishing\n 2) 7 Days Autorunning\n 3) Resize\n"
+        "Enter the mode:\n 1) Minecraft Autofishing\n 2) 7 Days Autorunning\n 3) Youtube\n 4) Aimlabs\n 5) Resize\n"
     ))
 
     match mode:
