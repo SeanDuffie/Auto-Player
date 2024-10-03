@@ -182,8 +182,53 @@ def youtube():
     rdr = bot.Reader(scn.get_image())
     plyr = bot.Player()
     htky = bot.Hotkey()
+    htky = bot.Hotkey(toggle_key=bot.keyboard.Key.shift_l)
+    htky = bot.Hotkey(toggle_key=bot.keyboard.Key("E"))
+    htky = bot.Hotkey(toggle_key=bot.keyboard.Key("Q"))
     t1 = threading.Thread(target=htky.run, args=())
     t1.start()
+
+    while htky.alive:
+        if htky.active:
+            # Grab a new image from the screen and read the text
+            rdr.update_img(scn.get_image())
+
+            # If in debug mode, show the image being read, and the text that came from it
+            if DEBUG:
+                rdr.show_img("Preview Raw")
+
+            try:
+                text: str = rdr.read_text()
+            except UnboundLocalError: # Thrown when the image is blank or monocolor
+                logger.error("Failed to read Text")
+                text = ""
+
+            # If in debug mode, show the image being read, and the text that came from it
+            if DEBUG:
+                rdr.show_img()
+
+            # Split values and remove incorrect numbers
+            try:
+                if text != "":
+                    logger.debug(text)
+                    # TODO: If text contains "Skip", left click in the desired area
+                    # FIXME: Update the location tuple coordinates
+                    plyr.mouse_clicks(button="left", count=1, loc=[0,0])
+                    # TODO: Return mouse to original position
+            except ValueError:
+                logger.error("Failed to split text")
+                # pass
+        else:
+            logger.info("Inactive")
+            while not htky.active:
+                if htky.alive:
+                    cv2.waitKey(17)
+                else:
+                    break
+            logger.info("Active")
+
+    t1.join()
+    logger.info("End main")
 
 def aimer():
     # Initialize the Screen Capture and the Text Reader
