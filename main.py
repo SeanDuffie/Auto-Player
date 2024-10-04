@@ -5,6 +5,7 @@
 import logging
 import sys
 import threading
+import time
 
 import cv2
 
@@ -182,9 +183,6 @@ def youtube():
     rdr = bot.Reader(scn.get_image())
     plyr = bot.Player()
     htky = bot.Hotkey()
-    htky = bot.Hotkey(toggle_key=bot.keyboard.Key.shift_l)
-    htky = bot.Hotkey(toggle_key=bot.keyboard.Key("E"))
-    htky = bot.Hotkey(toggle_key=bot.keyboard.Key("Q"))
     t1 = threading.Thread(target=htky.run, args=())
     t1.start()
 
@@ -229,6 +227,58 @@ def youtube():
 
     t1.join()
     logger.info("End main")
+
+def overwatch():
+    htky = bot.Hotkey()
+    shift_key = bot.Hotkey(toggle_key=bot.keyboard.Key.shift_l)
+    e_key = bot.Hotkey(toggle_key="e")
+
+    def timer(key: bot.Hotkey, cooldown: int, name: str = "Cooldown"):
+        while key.alive:
+            if key.active:
+                logger.info("Used %s!", name)
+                time.sleep(cooldown)
+                key.active = False
+                logger.info("%s Ready!", name)
+        logger.warning("Timer Finished")
+
+    t1 = threading.Thread(target=htky.run, args=())
+    t2 = threading.Thread(target=shift_key.run, args=())
+    t3 = threading.Thread(target=e_key.run, args=())
+    t1.start()
+    t2.start()
+    t3.start()
+
+    shift_timer = threading.Thread(target=timer, args=(shift_key, 14, "Sleep Dart"))
+    e_timer = threading.Thread(target=timer, args=(e_key, 12, "Biotic Grenade"))
+    shift_timer.start()
+    e_timer.start()
+
+    while htky.alive:
+        if htky.active:
+            cv2.waitKey(17)
+        else:
+            logger.info("Inactive")
+            shift_timer.join()
+            e_timer.join()
+
+            # Wait until reactivated
+            while not htky.active:
+                if htky.alive:
+                    cv2.waitKey(17)
+                else:
+                    break
+
+            logger.info("Active")
+            shift_timer.start()
+            e_timer.start()
+
+    shift_timer.join()
+    e_timer.join()
+    logger.info("End main")
+    t1.join()
+    t2.join()
+    t3.join()
 
 def aimer():
     # Initialize the Screen Capture and the Text Reader
@@ -294,7 +344,7 @@ def main():
 
     # Select Mode using the terminal
     mode = int(input(
-        "Enter the mode:\n 1) Minecraft Autofishing\n 2) 7 Days Autorunning\n 3) Youtube\n 4) Aimlabs\n 5) Resize\n"
+        "Enter the mode:\n 1) Minecraft Autofishing\n 2) 7 Days Autorunning\n 3) Youtube\n 4) Overwatch\n 5) Aimlabs\n 6) Resize\n"
     ))
 
     match mode:
@@ -308,9 +358,12 @@ def main():
             logger.info("YouTube settings")
             youtube()
         case 4:
+            logger.info("Overwatch settings")
+            overwatch()
+        case 5:
             logger.info("Aimlabs settings")
             aimer()
-        case 5:
+        case 6:
             logger.info("Custom settings")
             resize()
         case _:
