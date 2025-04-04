@@ -312,7 +312,8 @@ def resize():
 
         # Select the image with mouse, then use key inputs to modify
         logger.info('  1) Top    2) Left\n  3) Height\n  4) Width\r')
-        Key = f"{input('Selected: ')}"
+        Key = cv2.waitKey(1000)
+        # f"{input('Selected: ')}"
         match Key:
             case 49:
                 new_top = float(input("Enter new top pixel (0-1, percent of screen): "))
