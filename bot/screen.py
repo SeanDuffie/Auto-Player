@@ -20,6 +20,9 @@ from screeninfo import get_monitors
 
 logger = logging.getLogger("Auto")
 
+def click_event(event, x, y, flags, param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        logger.info("(%d, %d)", x, y)
 
 class Screen:
     """ Provides the ability to capture frames from the screen "
