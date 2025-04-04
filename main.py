@@ -306,7 +306,7 @@ def resize():
 
     while True:
         # Grab a new image from the screen and read the text
-        rdr.update_img(scn.get_image())
+        rdr.update_img(cv2.resize(scn.get_image(),(960,540)))
         # Show the image being read, and the text that came from it
         rdr.show_img()
 
