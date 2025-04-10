@@ -1,3 +1,7 @@
+""" @file app.py
+    @author Sean Duffie
+    @brief Tkinter GUI for the Auto-Player
+"""
 import tkinter as tk
 
 RUNNING = False
@@ -23,13 +27,14 @@ def toggle(event = None):
         event (_type_, optional): _description_. Defaults to None.
     """
     global RUNNING
-    print("toggle")
     if RUNNING:
-        button_toggle.config(text="Stop")
-        RUNNING = False
-    else:
         button_toggle.config(text="Start")
+        RUNNING = False
+        print("Stopping...")
+    else:
+        button_toggle.config(text="Stop")
         RUNNING = True
+        print("Starting...")
 
 def validate_input(new_text):
     """ Validates that a text input is a valid int
